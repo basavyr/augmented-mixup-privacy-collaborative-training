@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (downloaded at runtime)
+data/
+
+# Checkpoints and model weights
+checkpoints/
+*.pth
+*.pt
+
+# Generated outputs
+logs/
+*.log
+attack_figs/
+unet_attack_figs/
+mixup_pairs_features*/
+outlier_inspect*/
+
+# Generated images
+*.png
+
+# Environment variables
+.env

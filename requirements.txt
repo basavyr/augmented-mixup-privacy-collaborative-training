@@ -1,0 +1,9 @@
+torch
+torchvision
+torchmetrics
+lpips
+pyarrow
+Pillow
+numpy
+matplotlib
+tqdm
