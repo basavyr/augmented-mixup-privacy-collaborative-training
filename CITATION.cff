@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite our paper."
+title: "Augmented Mixup Procedure for Privacy-Preserving Collaborative Training"
+type: software
+authors:
+  - family-names: Plesa
+    given-names: Mihail-Iulian
+  - family-names: Clerot
+    given-names: Fabrice
+  - family-names: David
+    given-names: Simona Elena
+  - family-names: Poenaru
+    given-names: Robert
+year: 2026
+url: "https://openreview.net/forum?id=1SrZyNgmpY"
+license: MIT
