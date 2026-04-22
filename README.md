@@ -47,22 +47,6 @@ python generate_curated_tiny_imagenet.py --tiny-imagenet-root /path/to/tiny-imag
     --output-root /path/to/tiny-imagenet-cifar10-matched
 ```
 
----
-
-## Compute Requirements
-
-Most experiments were run on a single NVIDIA GPU with 16–24 GB VRAM. Training times vary:
-
-| Experiment | Approximate Time |
-|---|---|
-| `augment.py` (ResNet-18, CIFAR-10, 200 epochs) | ~30 min |
-| `collaborative_training.py` (10 parties, 5 epochs) | ~15 min |
-| `linear_attack.py` (single dataset, 6 tau values) | ~10 min |
-| `non_linear_attack.py` (U-Net, 30 epochs) | ~45 min |
-
-CPU execution is supported but significantly slower.
-
----
 
 ## Scripts
 
