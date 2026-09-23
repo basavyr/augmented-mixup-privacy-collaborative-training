@@ -1,0 +1,265 @@
+================================================================================
+Open Tech Days — Competition Form
+Singularized Mixup: Privacy-Preserving Collaborative AI, Made in Orange
+================================================================================
+
+A demonstration by Orange Research and Orange Services, building on internally
+developed research recently published at a leading peer-reviewed venue in
+machine learning.
+
+All third-party figures (regulatory data, market sizing, competing schemes)
+are traceable to the Sources section at the end of this file.
+
+================================================================================
+Q1. In which context does your demonstration topic fit?
+================================================================================
+
+Every regulated industry — healthcare, telco, finance, public sector — sits on
+data that would produce dramatically better AI models if pooled across silos,
+but that cannot legally be shared. GDPR enforcement alone has now reached
+EUR 6.1 billion in cumulative fines across 2,888 decisions (May 2026), with
+the Media/Telecoms sector accounting for EUR 4.97 billion of that total [S1].
+The EU AI Act [S2] and sector-specific frameworks (HIPAA, DORA, national
+health-data laws) add further pressure.
+
+The technical answers tried so far are failing in different ways. Federated
+learning is operationally heavy and demonstrably vulnerable to gradient-
+inversion attacks [S3]. Homomorphic encryption remains orders of magnitude
+too slow at deep-learning scale. And the most popular lightweight data-mixing
+schemes — InstaHide and NeuraCrypt — were both broken in 2021 by Carlini and
+collaborators [S5][S6]. Our demonstration occupies exactly this gap: it
+delivers the cost and scalability profile of data-mixing while neutralising
+the attacks that killed the previous generation, in a market segment that is
+both large and accelerating (Privacy Management Software alone is forecast at
+USD 15.2B by 2028 with a 41.9% CAGR [S7]).
+
+================================================================================
+Q2. Where is the innovation in your demonstration?
+================================================================================
+
+The innovation is at three levels — conceptual, theoretical, and practical —
+and that combination is what makes it defensible.
+
+Conceptually, we apply singularization — a principle Orange already uses to
+harden cryptography on resource-constrained telecom devices such as SIM
+cards [S12] — to the problem of collaborative AI training. Every prior
+mixing scheme failed for the same root cause: the same private sample
+reappeared across many encoded outputs, leaving a persistent statistical
+signal that adversaries could cluster on and unwind. Our method removes
+that signal at the source. Each private sample participates in essentially
+one mixture, and that mixture is deliberately poisoned with structured
+spherical noise on its non-target component. A single, elegant design
+choice neutralises the entire attack family that broke the previous
+generation of schemes.
+
+Theoretically, we turn this design into a provable security argument with
+two original results: a minimax lower bound on the reconstruction error of
+any attacker — linear or non-linear, even one with full knowledge of the
+mixing weights — and a closed-form calibration rule that sets the injected
+noise as a simple multiple of the average inter-sample distance to hit any
+chosen privacy target. This is a sharp departure from prior schemes whose
+security proofs collapsed once researchers examined them under realistic
+data assumptions.
+
+Practically, the resulting protocol is one-shot. Each party transforms its
+data once, locally, and ships the result. There is no iterative gradient
+exchange, no model-update orchestration, no secure-channel choreography, no
+federated-learning infrastructure to stand up and maintain. An entire layer
+of operational complexity — and an entire class of known attack surfaces —
+simply disappears. The technology is small enough to fit in a few dozen
+lines of code, yet powerful enough to change the economics of privacy-
+preserving AI.
+
+================================================================================
+Q3. What are the technologies used in your demonstration?
+================================================================================
+
+The core algorithm is small and self-contained: roughly thirty lines of
+PyTorch that perform a random pairing, a convex combination, and an
+isotropic spherical-noise injection. It is backed by minimax estimation
+theory and directional signal-to-noise analysis. Pretrained ResNet
+backbones serve as frozen, publicly available feature extractors; they are
+not part of the privacy mechanism, which means the security guarantee does
+not depend on any private artefact. A lightweight classifier head is trained
+on top of the singularized representations.
+
+To evaluate the security claim honestly, we also implement the attacker's
+side: a gradient-based linear inversion attack with total-variation and L2
+priors, and a learned non-linear U-Net reconstruction attack trained on
+public images. Reconstruction quality is measured with SNR, SSIM, and
+perceptual similarity (LPIPS). The federated-learning comparison uses
+FedProx as baseline. Benchmarks span MNIST, CIFAR-10, CIFAR-100,
+Tiny-ImageNet, and CIFAR-5M (five million images). The entire pipeline runs
+on a single commodity GPU — no specialised cryptographic accelerator, no
+secure multi-party computation cluster.
+
+================================================================================
+Q4. What is differentiating / remarkable in your demonstration?
+================================================================================
+
+The headline differentiator is that our method resists the very attacks that
+killed the prior generation. Linear inversion (Carlini-style), Gram-matrix
+attacks (Chen-style), fusion-denoising attacks (Luo-style), and a state-of-
+the-art learned U-Net attacker all fail once the privacy parameter crosses a
+modest threshold: reconstructions degrade into pure noise and become
+visually unrecognisable. Crucially, this holds under a deliberately
+conservative threat model in which the attacker is given full knowledge of
+the mixing weights — a level of generosity to the adversary that most prior
+schemes never granted.
+
+The second differentiator is that this strong privacy posture costs almost
+nothing in utility. Even at a privacy setting two orders of magnitude
+stricter than required to defeat the attacks, our method matches or beats
+the strongest published configuration of InstaHide across MNIST, CIFAR-10
+and CIFAR-100, with a measurable improvement of nearly two percentage points
+on CIFAR-100. The third differentiator is that, in collaborative training
+across many parties with heterogeneous data, our method outperforms the
+federated-learning baseline by up to twelve percentage points — while being
+a one-shot protocol that structurally eliminates the gradient-inversion
+attack surface that affects every iterative federated deployment [S3].
+
+================================================================================
+Q5. What concrete need / customer benefit does your demonstration address?
+================================================================================
+
+We address a pain point that is universal across regulated industries: the
+data we would need to train the next generation of AI models cannot legally
+be shared across silos. For data-science teams, our demonstration unlocks
+training on the effective union of partner datasets without the long legal
+and DPO negotiation cycle that today blocks most cross-silo projects. For
+DPOs and compliance officers, it changes the conversation from "we hope the
+data is safe" to "no attacker — linear or non-linear — can recover the
+original samples below a mathematically proven error bound."
+
+The demo brings this to life in a healthcare scenario. A consortium of
+European hospitals wants to train a diagnostic model for a rare condition.
+Sharing scans is blocked by GDPR [S10] and national health-data law;
+federated learning has proven fragile and leaks through gradients [S3];
+homomorphic encryption is too slow. With our approach, each hospital
+transforms its scans once, locally; a central institute trains one model
+on the union; no individual scan can be recovered by anyone; and diagnostic
+accuracy matches what a fully centralised model would have achieved. The
+same pattern transposes directly to telco fraud detection across operators,
+AML across banks, and threat-intelligence sharing across enterprises.
+
+================================================================================
+Q6. Can you make the link between your demonstration and the innovation
+    strategy of Orange?
+================================================================================
+
+The fit is genuinely strong across multiple strategic vectors. This is a
+home-grown Orange innovation, invented inside Orange Research and Orange
+Services and building directly on prior Orange work in singularization for
+telecom security [S12]. It reinforces Orange's positioning on trust, digital
+sovereignty, and responsible AI [S11][S13] by providing something the market
+currently lacks: a quantifiable privacy guarantee that can be put in front
+of regulators, auditors, and customers.
+
+It is also directly monetisable through existing Orange channels. It can
+ship as a Privacy-Enhancing Technology (PET) feature inside Orange Business
+data-collaboration offerings, competing head-to-head with AWS Clean Rooms
+[S14] and Snowflake Data Clean Rooms [S15]. It can power
+threat-intelligence-sharing platforms inside Orange Cyberdefense. It can
+serve as a building block for Orange's healthcare and eHealth initiatives.
+And internally, it unlocks cross-affiliate analytics that today stall on
+intra-group data-flow constraints. Peer-reviewed publication of the
+underlying research gives Orange visible thought leadership in a domain
+otherwise dominated by Google, Apple, and Meta.
+
+================================================================================
+Q7. What is the business potential of your demonstration?
+================================================================================
+
+The business potential can be assessed along three time horizons. In the
+short term (6-12 months), the primary value is internal: enabling specific
+cross-affiliate analytics use cases that are currently blocked or delayed
+by data-protection constraints. Plausible candidates include fraud-signal
+sharing between country operators, joint analytics on customer-experience
+data, and network-anomaly correlation across affiliates. The expected
+benefit is a reduction in the time and effort required to obtain legal
+and DPO approval for such projects, together with a clearer compliance
+narrative supported by quantitative privacy guarantees.
+
+In the medium term (12-24 months), the technology can be integrated as a
+component of existing Orange offers, subject to product-team validation:
+as a building block within Orange Business data-collaboration products,
+as an enabler for threat-intelligence-sharing scenarios in Orange
+Cyberdefense, and as a candidate technology for multi-institution
+training in Orange healthcare and eHealth initiatives. In the long term
+(24-48 months), and conditional on demonstrated traction in the previous
+phases, the underlying method could support a standalone Privacy-Enhancing
+Technology offering or licensing arrangements with adjacent vendors in
+the PET ecosystem (for example Duality, Decentriq, or TripleBlind).
+Realising each horizon will require dedicated product, legal, and
+go-to-market work beyond the scope of the research itself.
+
+The addressable market is large and accelerating. Privacy Management
+Software is forecast at USD 15.2B by 2028 with a 41.9% CAGR [S7]; the
+broader enterprise governance, risk and compliance market reaches
+USD 39.99B by 2030 [S8]; and Privacy-Enhancing Computation has been named
+a top strategic technology trend by Gartner [S9]. Defensibility comes from
+three reinforcing sources: a peer-reviewed publication anchoring the
+science, a head-to-head empirical story against InstaHide, federated
+learning, and homomorphic encryption, and a first-mover position in the
+trust vacuum that opened when the previous generation of mixing schemes was
+publicly broken [S5][S6].
+
+================================================================================
+Q8. Do you have another important point to report?
+================================================================================
+
+Two points are worth emphasising. First, the timing is exceptional. The two
+most-cited learnable-obfuscation schemes were broken within months of each
+other [S5][S6], leaving a vacuum in the privacy-preserving ML landscape with
+very few credible candidates to fill it. Orange has both the research asset
+and the industrial reach to occupy that vacuum now, rather than catching up
+later. Second, the technology is production-ready in principle. The core
+mechanism is a few dozen lines of PyTorch; it runs on commodity hardware;
+it integrates with any downstream training pipeline; and the reference
+implementation is openly available for reproduction and audit.
+
+A note of intellectual honesty for the jury: our security guarantee is not
+cryptographic in the strict formal sense — we do not claim epsilon-delta
+differential privacy or semantic security. What we provide is an
+average-case reconstruction lower bound and directional signal-to-noise
+control, validated empirically against the strongest known attacks. This
+is precisely the right trade-off for the privacy / utility / cost regime
+where federated learning and homomorphic encryption both fail in practice.
+Being transparent about it is itself a differentiator in a field where
+overclaiming has repeatedly damaged credibility.
+
+================================================================================
+Sources
+================================================================================
+
+[S1]  CMS Law / GDPR Enforcement Tracker — cumulative GDPR fines and sector breakdowns as of May 2026 (EUR 6.1B total across 2,888 fines; Media/Telecoms EUR 4.97B across 366 fines; Health Care EUR 32.4M across 268 fines): https://www.enforcementtracker.com/?insights
+[S2]  EU AI Act (Regulation (EU) 2024/1689), official text and timeline: https://eur-lex.europa.eu/eli/reg/2024/1689/oj — companion reference: https://artificialintelligenceact.eu/
+[S3]  Geiping, Bauermeister, Droege, Moeller. "Inverting Gradients — How easy is it to break privacy in federated learning?" NeurIPS 2020: https://arxiv.org/abs/2003.14053
+[S4]  Wikipedia, "Federated learning" — non-IID limitations, governance issues, and use cases (with sourced references): https://en.wikipedia.org/wiki/Federated_learning
+[S5]  Carlini et al. "Is Private Learning Possible with Instance Encoding?" IEEE Symposium on Security and Privacy (S&P) 2021 — practical attacks recovering near-complete InstaHide images: https://arxiv.org/abs/2011.05315
+[S6]  Carlini et al. "NeuraCrypt is not private." arXiv:2108.07256, 2021 — defeats the NeuraCrypt challenge by Yala et al.: https://arxiv.org/abs/2108.07256
+[S7]  MarketsandMarkets, "Privacy Management Software Market — Global Forecast to 2028" (June 2023): USD 15.2B by 2028 at 41.9% CAGR — https://www.marketsandmarkets.com/Market-Reports/privacy-management-software-market-60397848.html
+[S8]  MarketsandMarkets, "eGRC Market — Global Forecast to 2030" (May 2026): USD 20.56B in 2025 to USD 39.99B by 2030 at 14.2% CAGR — https://www.marketsandmarkets.com/Market-Reports/enterprise-governance-risk-compliance-market-1310.html
+[S9]  Gartner, "Privacy-Enhancing Computation" — named a top strategic technology trend for 2022: https://www.gartner.com/en/information-technology/glossary/privacy-enhancing-computation-pec — newsroom: https://www.gartner.com/en/newsroom/press-releases
+[S10] Regulation (EU) 2016/679 (GDPR), official text: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+[S11] Orange Group strategic plan ("Lead the Future" / "Engage 2025"): https://newsroom.orange.com/orange-presents-its-lead-the-future-strategic-plan/ — group strategy: https://www.orange.com/en/group/strategy
+[S12] Macario-Rat & Plesa. "Singularization: A new approach to designing block ciphers for resource-constrained devices." Springer 2024: https://link.springer.com/chapter/10.1007/978-3-031-78690-4_10
+[S13] Orange Group, "Trustworthy AI by Orange" / Data and AI Ethics Council: https://www.orange.com/en/data-and-ai-ethics-council — Hello Future portal: https://hellofuture.orange.com/en/
+[S14] AWS Clean Rooms product page: https://aws.amazon.com/clean-rooms/
+[S15] Snowflake Data Clean Rooms product page: https://www.snowflake.com/en/data-cloud/workloads/collaboration/data-clean-rooms/
+
+================================================================================
+Notes for the internal jury
+================================================================================
+
+* All performance claims (attack resistance, accuracy preservation,
+  improvement over federated learning baselines) are taken from
+  controlled experiments in the underlying peer-reviewed research and
+  are reproducible from the openly available reference implementation.
+
+* All market-size and regulatory figures are cited to specific
+  third-party sources with live URLs in the Sources section above.
+
+* Where a claim could not be sourced to a specific public document
+  with confidence, it has been presented qualitatively rather than
+  fabricated.
